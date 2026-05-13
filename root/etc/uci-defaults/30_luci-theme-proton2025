@@ -20,7 +20,7 @@ if [ ! -f /etc/config/proton2025 ]; then
 	touch /etc/config/proton2025
 	uci set proton2025.settings=theme
 	uci set proton2025.settings.mode='dark'
-	uci set proton2025.settings.accent='blue'
+	uci set proton2025.settings.accent='red'
 	uci set proton2025.settings.zoom='100'
 	uci set proton2025.settings.transparency='1'
 	uci set proton2025.settings.border_radius='default'

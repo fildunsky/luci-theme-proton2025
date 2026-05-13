@@ -71,10 +71,10 @@
     --proton-muted: #8b92a8;
 
     /* Accent Colors */
-    --proton-accent: #5e9eff;
-    --proton-accent-hover: #7db2ff;
-    --proton-accent-glow: rgba(94, 158, 255, 0.18);
-    --proton-accent-rgb: 94, 158, 255;
+    --proton-accent: #f87171;
+    --proton-accent-hover: #f04c4c;
+    --proton-accent-glow: rgba(248, 113, 113, 0.20);
+    --proton-accent-rgb: 248, 113, 113;
 
     /* Status Colors */
     --proton-success: #6bcf7f;
@@ -100,7 +100,7 @@
     --proton-page-gutter: 20px;
 
     /* Legacy compatibility */
-    --main-bright-color: #5e9eff;
+    --main-bright-color: #f87171;
     --main-dark-color: #0f1419;
     --secondary-bright-color: #f5f7fa;
     --secondary-dark-color: #1a1f2e;
@@ -129,7 +129,7 @@
 
     --primary-color-high: var(--proton-accent);
     --primary-color-medium: var(--proton-accent-hover);
-    --primary-color-low: rgba(94, 158, 255, 0.35);
+    --primary-color-low: rgba(248, 113, 113, 0.35);
     --on-primary-color: #ffffff;
 
     --error-color-high-rgb: 255, 107, 107;

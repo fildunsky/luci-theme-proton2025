@@ -267,7 +267,7 @@
     resetToDefaults: async function () {
       const defaults = {
         "proton-theme-mode": "dark",
-        "proton-accent-color": "blue",
+        "proton-accent-color": "red",
         "proton-zoom": "100",
         "proton-transparency": "true",
         "proton-border-radius": "default",
