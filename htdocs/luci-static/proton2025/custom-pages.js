@@ -1740,3 +1740,196 @@
   });
   dashContentObserver.observe(document.body, { childList: true, subtree: true });
 })();
+
+// =====================================================
+// SSClash / Mihomo inline-style dark-theme patcher
+//
+// Problem: SSClash mutates element.style.backgroundColor at runtime
+// (hover, selection). When any style property is set via JS, the browser
+// re-serializes the entire CSSStyleDeclaration, normalizing hex colors to
+// rgb() — so "color: #1f2937" becomes "color: rgb(31, 41, 55)".
+// Our CSS [style*="color: #1f2937"] no longer matches → text turns black.
+//
+// Solution: MutationObserver watches for style attribute changes and
+// remaps the normalized rgb() values to dark-theme CSS variables.
+// =====================================================
+(function () {
+  "use strict";
+
+  function isSSClashPage() {
+    var page = document.body.dataset.page || "";
+    return page.indexOf("ssclash") !== -1 || page.indexOf("mihomo") !== -1;
+  }
+
+  function isDark() {
+    return document.documentElement.getAttribute("data-theme") !== "light";
+  }
+
+  // Browser-normalized backgroundColor values → dark-theme equivalents.
+  // Includes both hex originals (for patchAll initial scan) and rgb() forms
+  // (for post-mutation interception).
+  var BG_DARK = {
+    // white / near-white panels
+    "white":              "var(--proton-bg-secondary)",
+    "#fff":               "var(--proton-bg-secondary)",
+    "rgb(255, 255, 255)": "var(--proton-bg-secondary)",
+    "#f9f9f9":            "var(--proton-bg-secondary)",
+    "rgb(249, 249, 249)": "var(--proton-bg-secondary)",
+    "#f8f9fa":            "var(--proton-bg-secondary)",
+    "rgb(248, 249, 250)": "var(--proton-bg-secondary)",
+    "#f8f8f8":            "var(--proton-bg-secondary)",
+    "rgb(248, 248, 248)": "var(--proton-bg-secondary)",
+    // blue-tint: selected mode card, hover on unchecked interface label
+    "#f0f8ff":            "rgba(59, 130, 246, 0.14)",
+    "rgb(240, 248, 255)": "rgba(59, 130, 246, 0.14)",
+    "#e6f3ff":            "rgba(59, 130, 246, 0.11)",
+    "rgb(230, 243, 255)": "rgba(59, 130, 246, 0.11)",
+    // green-tint: auto-detected LAN bridge, hover on checked interface
+    "#f8fff8":            "rgba(40, 167, 69, 0.13)",
+    "rgb(248, 255, 248)": "rgba(40, 167, 69, 0.13)",
+    "#e8f5e8":            "rgba(40, 167, 69, 0.15)",
+    "rgb(232, 245, 232)": "rgba(40, 167, 69, 0.15)",
+    "#f0fff0":            "rgba(40, 167, 69, 0.13)",
+    "rgb(240, 255, 240)": "rgba(40, 167, 69, 0.13)",
+    // amber-tint: warning panels
+    "#fff3cd":            "rgba(255, 193, 7, 0.14)",
+    "rgb(255, 243, 205)": "rgba(255, 193, 7, 0.14)",
+  };
+
+  // Dark text colors → light equivalents for dark mode
+  var COLOR_DARK = {
+    "rgb(31, 41, 55)":    "var(--proton-fg)",    // #1f2937 – main text
+    "rgb(55, 65, 81)":    "var(--proton-fg)",    // #374151
+    "rgb(75, 85, 99)":    "var(--proton-muted)", // #4b5563 – muted text
+    "rgb(107, 114, 128)": "var(--proton-muted)", // #6b7280
+    "rgb(133, 100, 4)":   "#e9c46a",             // #856404 → warm amber
+    "rgb(21, 87, 36)":    "#6fcf97",             // #155724 → light green
+    "rgb(0, 102, 204)":   "#60a5fa",             // #0066cc → sky blue
+  };
+
+  // Border color normalization
+  var BORDER_DARK = {
+    "rgb(221, 221, 221)": "var(--proton-border)", // #ddd
+    "rgb(204, 204, 204)": "var(--proton-border)", // #ccc
+  };
+
+  function patchEl(el) {
+    if (!el || !el.style) return;
+    var s = el.style;
+
+    var bg = s.backgroundColor;
+    if (bg && BG_DARK[bg] !== undefined) {
+      s.backgroundColor = BG_DARK[bg];
+    }
+
+    var col = s.color;
+    if (col && COLOR_DARK[col] !== undefined) {
+      s.color = COLOR_DARK[col];
+    }
+
+    var bc = s.borderColor;
+    if (bc && BORDER_DARK[bc] !== undefined) {
+      s.borderColor = BORDER_DARK[bc];
+    }
+
+    var blc = s.borderLeftColor;
+    if (blc && BORDER_DARK[blc] !== undefined) {
+      s.borderLeftColor = BORDER_DARK[blc];
+    }
+  }
+
+  function patchAll() {
+    if (!isDark()) return;
+    var root = document.getElementById("maincontent") || document.body;
+    var els = root.querySelectorAll("[style]");
+    for (var i = 0; i < els.length; i++) {
+      patchEl(els[i]);
+    }
+  }
+
+  var styleObs = null;
+
+  function startObs() {
+    if (styleObs) return;
+    var root = document.getElementById("maincontent") || document.body;
+    styleObs = new MutationObserver(function (mutations) {
+      if (!isDark()) return;
+      for (var i = 0; i < mutations.length; i++) {
+        var m = mutations[i];
+        if (m.type === "attributes") {
+          patchEl(m.target);
+        } else if (m.type === "childList") {
+          for (var j = 0; j < m.addedNodes.length; j++) {
+            var node = m.addedNodes[j];
+            if (node.nodeType !== 1) continue;
+            patchEl(node);
+            var ch = node.querySelectorAll("[style]");
+            for (var k = 0; k < ch.length; k++) patchEl(ch[k]);
+          }
+        }
+      }
+    });
+    styleObs.observe(root, {
+      attributes: true,
+      attributeFilter: ["style"],
+      childList: true,
+      subtree: true,
+    });
+  }
+
+  function stopObs() {
+    if (styleObs) { styleObs.disconnect(); styleObs = null; }
+  }
+
+  function onPageChange() {
+    if (isSSClashPage()) {
+      startObs();
+      setTimeout(patchAll, 100);
+    } else {
+      stopObs();
+    }
+  }
+
+  function init() {
+    if (!isSSClashPage()) return;
+    startObs();
+    patchAll();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+  window.addEventListener("load", function () {
+    if (isSSClashPage()) { patchAll(); }
+  });
+
+  // SPA navigation (data-page changes)
+  var ssNavObs = new MutationObserver(function (mutations) {
+    for (var i = 0; i < mutations.length; i++) {
+      if (mutations[i].attributeName === "data-page") {
+        setTimeout(onPageChange, 50);
+        return;
+      }
+    }
+  });
+  ssNavObs.observe(document.body, {
+    attributes: true,
+    attributeFilter: ["data-page"],
+  });
+
+  // Theme toggle (dark ↔ light)
+  var ssThemeObs = new MutationObserver(function (mutations) {
+    for (var i = 0; i < mutations.length; i++) {
+      if (mutations[i].attributeName === "data-theme") {
+        if (isSSClashPage()) setTimeout(patchAll, 50);
+        return;
+      }
+    }
+  });
+  ssThemeObs.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-theme"],
+  });
+})();

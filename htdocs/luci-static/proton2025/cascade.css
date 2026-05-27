@@ -1212,6 +1212,23 @@ textarea {
     max-width: 100%;
 }
 
+/* Ace editor uses a hidden <textarea class="ace_text-input"> for
+   keyboard/clipboard. Our global textarea rules break its clipboard
+   sync (padding shifts the selection offset, focus box-shadow makes
+   it visible, transition delays selection updates). Reset here. */
+.ace_text-input {
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    transition: none !important;
+    outline: none !important;
+    resize: none !important;
+}
+
 /* Checkbox & Radio */
 input[type="checkbox"],
 input[type="radio"] {
@@ -10292,6 +10309,10 @@ body.proton-custom-page .table {
     box-shadow: none;
 }
 
+body.proton-custom-page .table .tr {
+    display: table-row;
+}
+
 body.proton-custom-page .table .th,
 body.proton-custom-page .table .td {
     display: table-cell;
@@ -10393,19 +10414,15 @@ body.proton-custom-page table td {
     padding: 8px 10px;
 }
 
-/* Hide empty cbi-section-table-descr on custom pages */
-body.proton-custom-page .cbi-section-table-descr {
-    display: none;
-}
-
-/* Or if it has content, make it minimal */
-body.proton-custom-page .cbi-section-table-descr .th,
-body.proton-custom-page .cbi-section-table-descr th {
+/* Collapse empty cbi-section-table-descr rows on custom pages.
+   Do NOT use display:none — some apps render their column-title row
+   with this class, so hiding it would drop the entire header. */
+body.proton-custom-page .cbi-section-table-descr th:empty,
+body.proton-custom-page .cbi-section-table-descr .th:empty {
     padding: 0;
-    border: none;
-    height: 0;
     line-height: 0;
     font-size: 0;
+    border: none;
 }
 
 
@@ -11662,4 +11679,157 @@ body[data-page^="admin-dashboard"] .Dashboard .svgmonotone {
 
 :root[data-theme="light"] body[data-page^="admin-dashboard"] .Dashboard .svgmonotone {
     filter: none;
+}
+
+
+/* =====================================================
+   SSClash / Mihomo — Dark theme adaptation
+   settings.js and config.js build all UI with hardcoded
+   inline light-palette styles. CSS [style*] selectors
+   with !important override inline styles in the cascade.
+   ===================================================== */
+
+/* ── Common containers: white / near-white backgrounds ── */
+body[data-page*="ssclash"] [style*="background: white"],
+body[data-page*="ssclash"] [style*="background: #fff"],
+body[data-page*="ssclash"] [style*="background: #f9f9f9"],
+body[data-page*="ssclash"] [style*="background: #f8f9fa"],
+body[data-page*="ssclash"] [style*="background: #f8f8f8"],
+body[data-page*="ssclash"] [style*="background-color: white"],
+body[data-page*="ssclash"] [style*="background-color: #fff"],
+body[data-page*="ssclash"] [style*="background-color: #f9f9f9"],
+body[data-page*="mihomo"] [style*="background: white"],
+body[data-page*="mihomo"] [style*="background: #fff"],
+body[data-page*="mihomo"] [style*="background: #f9f9f9"],
+body[data-page*="mihomo"] [style*="background: #f8f9fa"],
+body[data-page*="mihomo"] [style*="background-color: white"],
+body[data-page*="mihomo"] [style*="background-color: #fff"],
+body[data-page*="mihomo"] [style*="background-color: #f9f9f9"] {
+    background-color: var(--proton-bg-secondary) !important;
+}
+
+/* ── Info / hint panels (light blue, green, yellow tints) ── */
+body[data-page*="ssclash"] [style*="background: #e6f3ff"],
+body[data-page*="ssclash"] [style*="background: #f0f8ff"],
+body[data-page*="mihomo"] [style*="background: #e6f3ff"],
+body[data-page*="mihomo"] [style*="background: #f0f8ff"] {
+    background-color: rgba(var(--proton-accent-rgb), 0.08) !important;
+}
+
+body[data-page*="ssclash"] [style*="background: #e8f5e8"],
+body[data-page*="ssclash"] [style*="background: #f8fff8"],
+body[data-page*="mihomo"] [style*="background: #e8f5e8"],
+body[data-page*="mihomo"] [style*="background: #f8fff8"] {
+    background-color: rgba(40, 167, 69, 0.12) !important;
+}
+
+body[data-page*="ssclash"] [style*="background: #fff3cd"],
+body[data-page*="mihomo"] [style*="background: #fff3cd"] {
+    background-color: rgba(255, 193, 7, 0.12) !important;
+}
+
+/* ── Text: dark text on light background → proton fg ── */
+body[data-page*="ssclash"] [style*="color: #1f2937"],
+body[data-page*="ssclash"] [style*="color: #4b5563"],
+body[data-page*="ssclash"] [style*="color: #374151"],
+body[data-page*="mihomo"] [style*="color: #1f2937"],
+body[data-page*="mihomo"] [style*="color: #4b5563"],
+body[data-page*="mihomo"] [style*="color: #374151"] {
+    color: var(--proton-fg) !important;
+}
+
+body[data-page*="ssclash"] [style*="color: #856404"],
+body[data-page*="mihomo"] [style*="color: #856404"] {
+    color: #e9c46a !important;
+}
+
+body[data-page*="ssclash"] [style*="color: #155724"],
+body[data-page*="mihomo"] [style*="color: #155724"] {
+    color: #6fcf97 !important;
+}
+
+/* ── Borders: light grey → proton border ── */
+body[data-page*="ssclash"] [style*="border: 1px solid #ddd"],
+body[data-page*="ssclash"] [style*="border: 2px solid #ddd"],
+body[data-page*="ssclash"] [style*="border: 1px solid #ccc"],
+body[data-page*="ssclash"] [style*="border-color: #ddd"],
+body[data-page*="ssclash"] [style*="border-color: #ccc"],
+body[data-page*="mihomo"] [style*="border: 1px solid #ddd"],
+body[data-page*="mihomo"] [style*="border: 2px solid #ddd"],
+body[data-page*="mihomo"] [style*="border: 1px solid #ccc"],
+body[data-page*="mihomo"] [style*="border-color: #ddd"],
+body[data-page*="mihomo"] [style*="border-color: #ccc"] {
+    border-color: var(--proton-border) !important;
+}
+
+/* ── Split-button save dropdown ── */
+body[data-page*="ssclash"] .ssclash-split-menu,
+body[data-page*="mihomo"] .ssclash-split-menu {
+    background: var(--proton-bg-secondary) !important;
+    color: var(--proton-fg) !important;
+    border-color: var(--proton-border) !important;
+    box-shadow: var(--proton-shadow-lg) !important;
+}
+
+body[data-page*="ssclash"] .ssclash-split-menu button,
+body[data-page*="mihomo"] .ssclash-split-menu button {
+    color: var(--proton-fg) !important;
+}
+
+body[data-page*="ssclash"] .ssclash-split-menu button:hover,
+body[data-page*="mihomo"] .ssclash-split-menu button:hover {
+    background: var(--proton-bg-hover) !important;
+}
+
+/* ── Footer version line ── */
+body[data-page*="ssclash"] #ssclash-version-footer,
+body[data-page*="mihomo"] #ssclash-version-footer {
+    color: var(--proton-muted) !important;
+    border-top-color: var(--proton-border) !important;
+}
+
+/* ── Status label (running / stopped) ── */
+body[data-page*="ssclash"] [style*="background-color: #5cb85c"],
+body[data-page*="mihomo"] [style*="background-color: #5cb85c"] {
+    background-color: #2d8a4e !important;
+}
+
+body[data-page*="ssclash"] [style*="background-color: #d9534f"],
+body[data-page*="mihomo"] [style*="background-color: #d9534f"] {
+    background-color: #a63030 !important;
+}
+
+/* ── Light theme: SSClash pages look fine with their own styles ── */
+:root[data-theme="light"] body[data-page*="ssclash"] [style*="background: white"],
+:root[data-theme="light"] body[data-page*="ssclash"] [style*="background: #fff"],
+:root[data-theme="light"] body[data-page*="ssclash"] [style*="background: #f9f9f9"],
+:root[data-theme="light"] body[data-page*="ssclash"] [style*="background: #f8f9fa"],
+:root[data-theme="light"] body[data-page*="ssclash"] [style*="background-color: white"],
+:root[data-theme="light"] body[data-page*="ssclash"] [style*="background-color: #fff"],
+:root[data-theme="light"] body[data-page*="ssclash"] [style*="background-color: #f9f9f9"],
+:root[data-theme="light"] body[data-page*="ssclash"] [style*="color: #1f2937"],
+:root[data-theme="light"] body[data-page*="ssclash"] [style*="color: #4b5563"],
+:root[data-theme="light"] body[data-page*="ssclash"] [style*="border: 1px solid #ddd"],
+:root[data-theme="light"] body[data-page*="ssclash"] [style*="border: 2px solid #ddd"],
+:root[data-theme="light"] body[data-page*="ssclash"] [style*="background: #e6f3ff"],
+:root[data-theme="light"] body[data-page*="ssclash"] [style*="background: #e8f5e8"],
+:root[data-theme="light"] body[data-page*="ssclash"] [style*="background: #fff3cd"],
+:root[data-theme="light"] body[data-page*="ssclash"] [style*="color: #856404"],
+:root[data-theme="light"] body[data-page*="ssclash"] [style*="color: #155724"],
+:root[data-theme="light"] body[data-page*="ssclash"] [style*="background-color: #5cb85c"],
+:root[data-theme="light"] body[data-page*="ssclash"] [style*="background-color: #d9534f"],
+:root[data-theme="light"] body[data-page*="mihomo"] [style*="background: white"],
+:root[data-theme="light"] body[data-page*="mihomo"] [style*="background: #fff"],
+:root[data-theme="light"] body[data-page*="mihomo"] [style*="background: #f9f9f9"],
+:root[data-theme="light"] body[data-page*="mihomo"] [style*="background: #f8f9fa"],
+:root[data-theme="light"] body[data-page*="mihomo"] [style*="background-color: #f9f9f9"],
+:root[data-theme="light"] body[data-page*="mihomo"] [style*="color: #1f2937"],
+:root[data-theme="light"] body[data-page*="mihomo"] [style*="background: #e6f3ff"],
+:root[data-theme="light"] body[data-page*="mihomo"] [style*="background: #e8f5e8"],
+:root[data-theme="light"] body[data-page*="mihomo"] [style*="background: #fff3cd"],
+:root[data-theme="light"] body[data-page*="mihomo"] [style*="color: #856404"],
+:root[data-theme="light"] body[data-page*="mihomo"] [style*="color: #155724"],
+:root[data-theme="light"] body[data-page*="mihomo"] [style*="background-color: #5cb85c"],
+:root[data-theme="light"] body[data-page*="mihomo"] [style*="background-color: #d9534f"] {
+    all: revert;
 }
