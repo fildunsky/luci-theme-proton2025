@@ -17,7 +17,7 @@
 // Apply all theme settings from localStorage (same as header.ut)
 (function() {
 	// Theme mode (dark/light)
-	var themeMode = localStorage.getItem('proton-theme-mode') || 'dark';
+	var themeMode = localStorage.getItem('proton-theme-mode') || 'auto';
 	if (themeMode === 'light') {
 		document.documentElement.setAttribute('data-theme', 'light');
 	}

@@ -46,8 +46,11 @@
 <script>
 (function() {
 	// Применяем тему ДО отрисовки страницы, чтобы избежать мерцания
-	var themeMode = localStorage.getItem('proton-theme-mode') || 'dark';
-	if (themeMode === 'light') {
+	var themeMode = localStorage.getItem('proton-theme-mode') || 'auto';
+	var effectiveTheme = themeMode === 'auto'
+		? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+		: themeMode;
+	if (effectiveTheme === 'light') {
 		document.documentElement.setAttribute('data-theme', 'light');
 		document.documentElement.setAttribute('data-darkmode', 'false');
 	} else {
@@ -86,7 +89,7 @@
 		document.documentElement.style.setProperty('--proton-page-max-width', pw + '%');
 	}
 	// Устанавливаем фоновый цвет ДО загрузки cascade.css, чтобы избежать мерцания градиента
-	var bgSolid = themeMode === 'light' ? '#ffffff' : '#0f1419';
+	var bgSolid = effectiveTheme === 'light' ? '#ffffff' : '#0f1419';
 	document.documentElement.style.setProperty('background-color', bgSolid);
 })();
 </script>

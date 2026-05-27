@@ -55,6 +55,9 @@ return baseclass.extend({
     // Apply saved theme settings on every page
     this.loadAndApplyThemeSettings();
 
+    // Listen for OS-level dark/light mode changes (auto mode)
+    this.initAutoThemeListener();
+
     // Initialize theme settings UI on System page
     document.addEventListener("DOMContentLoaded", () => {
       this.initThemeSettings();
@@ -87,10 +90,27 @@ return baseclass.extend({
     });
   },
 
+  initAutoThemeListener() {
+    if (this._autoThemeListenerInit) return;
+    this._autoThemeListenerInit = true;
+
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const applyOsTheme = (isDark) => {
+      if ((localStorage.getItem("proton-theme-mode") || "auto") !== "auto") return;
+      document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
+    };
+
+    if (typeof mq.addEventListener === "function") {
+      mq.addEventListener("change", (ev) => applyOsTheme(ev.matches));
+    } else if (typeof mq.addListener === "function") {
+      mq.addListener((ev) => applyOsTheme(ev.matches));
+    }
+  },
+
   loadAndApplyThemeSettings() {
     const defaultZoom = "100";
     const settings = {
-      themeMode: localStorage.getItem("proton-theme-mode") || "dark",
+      themeMode: localStorage.getItem("proton-theme-mode") || "auto",
       accentColor: localStorage.getItem("proton-accent-color") || "blue",
       borderRadius: localStorage.getItem("proton-border-radius") || "default",
       zoom: localStorage.getItem("proton-zoom") || defaultZoom,
@@ -107,8 +127,14 @@ return baseclass.extend({
       customFont: localStorage.getItem("proton-custom-font") !== "false",
     };
 
-    // Apply theme mode
-    document.documentElement.setAttribute("data-theme", settings.themeMode);
+    // Apply theme mode (auto = follow OS preference)
+    const effectiveTheme =
+      settings.themeMode === "auto"
+        ? window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light"
+        : settings.themeMode;
+    document.documentElement.setAttribute("data-theme", effectiveTheme);
 
     this.applyThemeSettings(settings);
   },
@@ -995,7 +1021,7 @@ return baseclass.extend({
       // Load saved settings
       const defaultZoom = "100";
       const settings = {
-        themeMode: localStorage.getItem("proton-theme-mode") || "dark",
+        themeMode: localStorage.getItem("proton-theme-mode") || "auto",
         accentColor: localStorage.getItem("proton-accent-color") || "blue",
         borderRadius: localStorage.getItem("proton-border-radius") || "default",
         zoom: parseInt(localStorage.getItem("proton-zoom") || defaultZoom),
@@ -1028,6 +1054,9 @@ return baseclass.extend({
             )}</label>
             <div class="cbi-value-field">
               <select id="proton-mode-select" class="cbi-input-select">
+                <option value="auto" ${
+                  settings.themeMode === "auto" ? "selected" : ""
+                }>${t("Auto")} (${t("System")})</option>
                 <option value="dark" ${
                   settings.themeMode === "dark" ? "selected" : ""
                 }>${t("Dark")} (${t("Default")})</option>
@@ -1036,7 +1065,7 @@ return baseclass.extend({
                 }>${t("Light")}</option>
               </select>
               <div class="cbi-value-description">${t(
-                "Choose light or dark theme",
+                "Choose light, dark, or system theme",
               )}</div>
             </div>
           </div>
@@ -1344,7 +1373,13 @@ return baseclass.extend({
       modeSelect?.addEventListener("change", (e) => {
         const mode = e.target.value;
         localStorage.setItem("proton-theme-mode", mode);
-        document.documentElement.setAttribute("data-theme", mode);
+        const effective =
+          mode === "auto"
+            ? window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light"
+            : mode;
+        document.documentElement.setAttribute("data-theme", effective);
       });
 
       accentSelect?.addEventListener("change", (e) => {

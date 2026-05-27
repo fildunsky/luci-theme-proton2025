@@ -2,7 +2,7 @@
 # This file stores theme settings that sync across browsers
 
 config theme 'settings'
-	option mode 'dark'
+	option mode 'auto'
 	option accent 'blue'
 	option zoom '100'
 	option transparency '1'
