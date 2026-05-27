@@ -52,6 +52,9 @@
     }
 
     function rgba(c, a) {
+        if (document.documentElement.getAttribute("data-theme") === "light") {
+            a = Math.min(1, a * 2.25);
+        }
         return "rgba(" + Math.round(c.r) + "," + Math.round(c.g) + "," + Math.round(c.b) + "," + a + ")";
     }
 

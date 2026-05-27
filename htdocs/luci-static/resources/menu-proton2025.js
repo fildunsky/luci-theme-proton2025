@@ -1059,7 +1059,7 @@ return baseclass.extend({
                 }>${t("Auto")} (${t("System")})</option>
                 <option value="dark" ${
                   settings.themeMode === "dark" ? "selected" : ""
-                }>${t("Dark")} (${t("Default")})</option>
+                }>${t("Dark")}</option>
                 <option value="light" ${
                   settings.themeMode === "light" ? "selected" : ""
                 }>${t("Light")}</option>
@@ -1164,7 +1164,7 @@ return baseclass.extend({
               <div id="proton-page-width-slider" style="display: ${settings.pageWidth > 0 ? "flex" : "none"}; align-items: center; gap: 12px; margin-top: 8px;">
                 <button type="button" id="proton-page-width-minus" class="cbi-button" style="padding: 0.4rem 0.8rem; min-width: auto;">−</button>
                 <input type="range" id="proton-page-width-range" min="50" max="100" step="5" value="${
-                  settings.pageWidth > 0 ? settings.pageWidth : 75
+                  settings.pageWidth > 0 ? settings.pageWidth : 80
                 }" style="flex: 1; accent-color: var(--proton-accent);">
                 <button type="button" id="proton-page-width-plus" class="cbi-button" style="padding: 0.4rem 0.8rem; min-width: auto;">+</button>
               </div>
@@ -1859,7 +1859,7 @@ return baseclass.extend({
     if (window.innerWidth < 800) {
       document.documentElement.style.setProperty(
         "--proton-page-max-width",
-        "990px",
+        "80%",
       );
       return;
     }
@@ -1871,7 +1871,7 @@ return baseclass.extend({
     } else {
       document.documentElement.style.setProperty(
         "--proton-page-max-width",
-        "990px",
+        "80%",
       );
     }
   },

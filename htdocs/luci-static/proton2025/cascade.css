@@ -96,7 +96,7 @@
     --proton-transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
     /* Layout */
-    --proton-page-max-width: 990px;
+    --proton-page-max-width: none;
     --proton-page-gutter: 20px;
 
     /* Legacy compatibility */
@@ -393,6 +393,7 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     letter-spacing: 0.01em;
+    overflow-x: hidden;
 }
 
 /* Light theme background gradients */
@@ -711,8 +712,9 @@ a:active {
     padding: 24px var(--proton-page-gutter);
     padding-bottom: 120px;
     min-width: 0;
-    overflow-x: auto;
-    overflow-y: visible;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: auto;
     animation: fadeIn 0.4s ease-out;
 }
 
@@ -1529,6 +1531,7 @@ table:has(.cbi-section-actions) {
     overflow: visible;
 }
 
+
 th {
     background: var(--proton-bg-secondary);
     color: var(--proton-fg-secondary);
@@ -1584,17 +1587,75 @@ tr:hover td {
     border-radius: 0 var(--proton-radius-sm) 0 0;
 }
 
-/* Table cells with inputs and control-groups */
+/* Table cells with inputs and control-groups.
+   The global input rule has max-width: 400px which makes table-layout: auto
+   treat the column's max-content contribution as 400px. With a 240px sidebar
+   only ~1006px is available, so a single 400px input column plus buttons and
+   data columns causes horizontal overflow. max-width: none removes the cap and
+   lets the column size to the input's intrinsic width (~170px), which fits. */
 td input:not([type]),
 td input[type="text"],
 td input[type="password"],
 td select,
-td .cbi-dropdown:not(.btn):not(.cbi-button),
 td .cbi-dynlist,
 td .control-group {
-    /* Allow table cells to shrink instead of forcing overflow */
     min-width: 0;
     width: 100%;
+    max-width: none;
+}
+
+td .cbi-dropdown:not(.btn):not(.cbi-button) {
+    display: flex !important;
+    min-width: 0 !important;
+    max-width: 100%;
+    width: 100%;
+}
+
+/* =====================================================
+   CBI Section-Table: compact layout so tables fit
+   inside the ~910px content area without page scroll.
+
+   Root cause: the action cell has class "nowrap" (set
+   by form.js) which forces all buttons side-by-side.
+   With 3 Cyrillic buttons (Изменить/Удалить/Копировать)
+   that alone takes 280-320px. Reduce button padding and
+   eliminate the double-gap (flex gap + margin-left).
+   ===================================================== */
+
+/* Tighter header and data cells */
+table.cbi-section-table th {
+    padding: 8px 10px;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.82rem;
+}
+
+table.cbi-section-table td {
+    padding: 8px 10px;
+}
+
+/* Compact action buttons */
+table.cbi-section-table td.cbi-section-actions .cbi-button,
+table.cbi-section-table td.cbi-section-actions .btn,
+table.cbi-section-table td.cbi-section-actions button {
+    padding: 4px 8px !important;
+    font-size: 0.8rem !important;
+    min-height: unset;
+}
+
+/* Single gap only */
+table.cbi-section-table .cbi-section-actions > div {
+    gap: 4px;
+}
+
+table.cbi-section-table .cbi-section-actions button + button,
+table.cbi-section-table .cbi-section-actions .btn + .btn,
+table.cbi-section-table .cbi-section-actions .cbi-button + .cbi-button {
+    margin-left: 0;
+}
+
+body:not([data-page^="admin-status"]) .cbi-tblsection {
+    overflow-x: auto;
 }
 
 /* Status page: Associated Stations table can contain very long labels (AP name + phy).
@@ -3169,6 +3230,7 @@ table.assoclist td[data-title="Скорость приёма / отправки"
     padding: 0;
     display: flex;
     width: 100%;
+    min-width: 0;
     overflow-x: hidden;
     overflow-y: auto;
 }
@@ -3480,6 +3542,8 @@ body[data-page^="admin-status"] .cbi-section>div>div[style*="display:grid"] {
     gap: 16px;
     justify-content: flex-start;
     margin: 0;
+    max-width: 100%;
+    overflow-x: auto;
 }
 
 /*
@@ -6779,7 +6843,6 @@ body[data-page="admin-system-leds"] #cbi-system-led .cbi-section-table {
     background: var(--proton-bg-secondary);
     border: 1px solid var(--proton-border);
     border-radius: var(--proton-radius);
-    overflow: hidden;
 }
 
 body[data-page="admin-system-leds"] #cbi-system-led .cbi-section-table-titles {
@@ -6787,12 +6850,10 @@ body[data-page="admin-system-leds"] #cbi-system-led .cbi-section-table-titles {
 }
 
 body[data-page="admin-system-leds"] #cbi-system-led .cbi-section-table-titles .th {
-    padding: 12px 16px;
+    padding: 8px 10px;
     font-weight: 600;
     color: var(--proton-fg);
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
+    font-size: 0.82rem;
     border-bottom: 1px solid var(--proton-border);
 }
 
@@ -6810,9 +6871,9 @@ body[data-page="admin-system-leds"] #cbi-system-led .cbi-section-table-row:last-
 }
 
 body[data-page="admin-system-leds"] #cbi-system-led .cbi-section-table-row .td {
-    padding: 12px 16px;
+    padding: 8px 10px;
     vertical-align: middle;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
 }
 
 /* Name field */
@@ -6821,7 +6882,7 @@ body[data-page="admin-system-leds"] #cbi-system-led .td[data-title="Name"] {
     color: var(--proton-fg);
 }
 
-/* LED Name - monospace with accent */
+/* LED Name - monospace with accent color */
 body[data-page="admin-system-leds"] #cbi-system-led .td[data-title="LED Name"] {
     font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
     color: var(--proton-accent);
@@ -6868,8 +6929,6 @@ body[data-page="admin-system-leds"] #cbi-system-led .cbi-button-edit {
     background: var(--proton-accent) !important;
     border-color: var(--proton-accent) !important;
     color: #fff !important;
-    padding: 6px 12px !important;
-    font-size: 0.8rem !important;
     border-radius: var(--proton-radius-sm) !important;
 }
 
@@ -6881,8 +6940,6 @@ body[data-page="admin-system-leds"] #cbi-system-led .cbi-button-remove {
     background: rgba(255, 107, 107, 0.1) !important;
     border-color: rgba(255, 107, 107, 0.3) !important;
     color: var(--proton-danger) !important;
-    padding: 6px 12px !important;
-    font-size: 0.8rem !important;
     border-radius: var(--proton-radius-sm) !important;
 }
 
