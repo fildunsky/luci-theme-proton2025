@@ -38,7 +38,7 @@ set_proton_default() {
 }
 
 set_proton_default mode 'auto'
-set_proton_default accent 'blue'
+set_proton_default accent 'red'
 set_proton_default zoom '100'
 set_proton_default transparency '1'
 set_proton_default border_radius 'default'

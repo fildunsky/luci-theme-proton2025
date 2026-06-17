@@ -123,7 +123,7 @@ return baseclass.extend({
         storedThemeMode === "light" || storedThemeMode === "dark"
           ? storedThemeMode
           : "auto",
-      accentColor: localStorage.getItem("proton-accent-color") || "blue",
+      accentColor: localStorage.getItem("proton-accent-color") || "red",
       borderRadius: localStorage.getItem("proton-border-radius") || "default",
       zoom: localStorage.getItem("proton-zoom") || defaultZoom,
       pageWidth: localStorage.getItem("proton-page-width") || "0",
@@ -2008,7 +2008,7 @@ return baseclass.extend({
           storedThemeMode === "light" || storedThemeMode === "dark"
             ? storedThemeMode
             : "auto",
-        accentColor: localStorage.getItem("proton-accent-color") || "blue",
+        accentColor: localStorage.getItem("proton-accent-color") || "red",
         borderRadius: localStorage.getItem("proton-border-radius") || "default",
         zoom: parseInt(localStorage.getItem("proton-zoom") || defaultZoom),
         pageWidth: parseInt(localStorage.getItem("proton-page-width") || "0"),
@@ -3105,7 +3105,7 @@ return baseclass.extend({
             // Fallback if sync module not loaded
             const defaults = {
               "proton-theme-mode": "auto",
-              "proton-accent-color": "blue",
+              "proton-accent-color": "red",
               "proton-zoom": "100",
               "proton-transparency": "true",
               "proton-border-radius": "default",
